@@ -8,6 +8,8 @@ pygame.init()
 
 # Create a numpy array and assign values
 GRID = np.zeros((5, 5), dtype = int)
+GRID_BLANK = np.full((5, 5), ' ', dtype = str)
+
 # Generate random positions for numbers 1 to 5
 for i in range(1, 6):
     # Generate random row and column for each number
@@ -67,6 +69,7 @@ def checkMouseCoords(row, col):
     global numbers_remaining
     if GRID[row, col] == 6-numbers_remaining:
         numbers_remaining=numbers_remaining-1
+        #GRID[row, col] = "CORRECT"
         display_message("You win", 300, 300)
         print("clicked right")
         return True
@@ -76,12 +79,12 @@ def checkMouseCoords(row, col):
         return False
 
 # Function to draw the grid
-def draw_grid():
-    print('DRAWING>>>>>')
+def draw_grid(arr):
+    #print('DRAWING>>>>>')
     for row in range(GRID_ROWS):
         for col in range(GRID_COLS):
             # Get the value from the NumPy array
-            value = GRID[row, col]
+            value = arr[row, col]
 
             # Calculate the cell's position
             x = col * CELL_SIZE
@@ -102,8 +105,7 @@ running = True
 
 while running:
     elapsed_time = pygame.time.get_ticks() - start_time  # Calculate elapsed time
-    if elapsed_time > 2000:  # 2 seconds
-        GRID.fill(0)  # clears grid
+    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -118,8 +120,11 @@ while running:
     screen.fill(BLACK)
 
     # Draw the grid
-    draw_grid()
-
+    if elapsed_time < 2000:  # 2 seconds
+        draw_grid(GRID)
+        #GRID.fill(0)  # clears grid
+    else:
+        draw_grid(GRID_BLANK)
     # Update the display
     pygame.display.flip()
 
