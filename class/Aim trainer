@@ -28,6 +28,7 @@ RED = (255, 0, 0)
 game_over = False
 count = 0
 target_row, target_col = None, None  # Start with no target initially
+total_time = 15
 
 # Initialize screen
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -108,13 +109,15 @@ def aim_trainer():
     clock = pygame.time.Clock()
     start_time = pygame.time.get_ticks()
     elapsed_time = pygame.time.get_ticks() - start_time
+    time_left = 15000
     running = True
 
     # Select the initial random target
     select_new_target()
 
     while running:
-        elapsed_time = pygame.time.get_ticks() - start_time
+        elapsed_time = (pygame.time.get_ticks() - start_time) / 1000  # Convert to seconds
+        time_left = max(0, total_time - elapsed_time)        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -130,19 +133,23 @@ def aim_trainer():
         screen.fill(BLACK)  # Fill the screen with black
         draw_grid(GRID_BLANK)  # Draw the grid
         highlight_target(target_row, target_col)  # Highlight the current target square
+        display_message(f"Time Left: {int(time_left)}s", SCREEN_WIDTH // 2, 24, WHITE)
+
+
         pygame.display.flip()
 
+
         # If game over, stop the loop
-        if game_over or elapsed_time > 15000:
-            if elapsed_time > 15000:
+        if game_over or time_left <= 0:
+            if time_left <= 0:
                 display_message("Time's Up! Your score was "+str(count), SCREEN_WIDTH //2, SCREEN_HEIGHT //2, RED)
                 break
             else: 
                 display_message("You Missed! Your score was "+str(count), SCREEN_WIDTH//2, SCREEN_HEIGHT//2, RED)
                 break
-        
+        clock.tick(60) #limit to 60fps
     pygame.display.flip()
-    time.sleep(10)
+    time.sleep(5)
     
 # Run the game
 aim_trainer()
