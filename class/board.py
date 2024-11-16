@@ -132,7 +132,7 @@ def draw_grid(arr):
 running = True
 quit_timer = None
 
-
+"""
 while running:
     if(numbers_remaining==0):
         game_over=True
@@ -173,7 +173,7 @@ while running:
 
     # Update the display
     pygame.display.flip()
-
+"""
 
 
 def highlight_target(row, col):
@@ -191,7 +191,7 @@ def checkAimMouseCoords(row, col):
         print("Clicked wrong")
 
 def aim_trainer():
-    elapsed_time2 = pygame.time.get_ticks() - start_time  # Calculate elapsed time
+    elapsed_time2 = pygame.time.get_ticks() # Calculate elapsed time
     global game_over, count, target_row, target_col
 
     clock = pygame.time.Clock()
@@ -218,7 +218,7 @@ def aim_trainer():
         target_row, target_col = np.random.randint(0, GRID_SIZE), np.random.randint(0, GRID_SIZE)
 
         # Draw everything
-        draw_grid()
+        draw_grid(GRID_BLANK)
         highlight_target(target_row, target_col)
         pygame.display.flip()
 
