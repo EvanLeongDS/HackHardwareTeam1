@@ -65,6 +65,7 @@ def checkMouseCoords(row, col):
         print("Clicked wrong")
         game_over = True
 
+
 # Function to draw the grid
 def draw_grid(arr):
     for row in range(GRID_ROWS):
@@ -152,8 +153,12 @@ def aim_trainer():
     time.sleep(5)
     
 # Run the game
-aim_trainer()
+def main():
+    aim_trainer()
 
-# Quit Pygame
-pygame.quit()
-sys.exit()
+    # Quit Pygame
+    pygame.quit()
+    sys.exit()
+
+if __name__ == "__main__":
+    main()

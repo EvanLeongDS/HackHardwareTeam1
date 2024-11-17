@@ -1,6 +1,7 @@
 import pygame
 import numpy as np
 import sys
+import time
 
 # Initialize Pygame
 pygame.init()
@@ -12,6 +13,22 @@ numbers_remaining_partner = 4
 start_time = pygame.time.get_ticks()
 score=0
 game_start = False
+end_game = False
+game_over = False
+quit_timer = None
+
+# Screen setup
+CELL_SIZE = 120  # Size of each grid cell
+
+# Font for displaying values
+font = pygame.font.Font(None, 36)
+
+# Colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+GREEN = (0, 255, 0)
+GRAY = (200, 200, 200)
+RED = (255, 0, 0)
 
 # Function to generate the grid for the current level
 def generate_grid():
@@ -49,33 +66,6 @@ def update_screen_dimensions():
     GRID_COLS = GRID.shape[1]
     SCREEN_WIDTH = GRID_COLS * CELL_SIZE
     SCREEN_HEIGHT = GRID_ROWS * CELL_SIZE
-
-# Screen setup
-CELL_SIZE = 120  # Size of each grid cell
-
-# Generate grid and assign positions before updating screen dimensions
-generate_grid()  # Generate grid at the start of the game
-assign_positions()  # Assign positions of numbers on the grid
-update_screen_dimensions()  # Update the screen dimensions based on the grid size
-
-# Initial screen setup
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Grid Example")
-
-# Colors
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-GREEN = (0, 255, 0)
-GRAY = (200, 200, 200)
-RED = (255, 0, 0)
-
-# Font for displaying values
-font = pygame.font.Font(None, 36)
-
-# Create a 2D list to keep track of the squares that have been clicked
-clicked_grid = np.zeros((GRID_ROWS, GRID_COLS), dtype=int)
-game_over = False
-end_game = False
 
 # Display some text
 def display_message(text, x, y, color):
@@ -152,65 +142,79 @@ def draw_grid(arr):
                     text_rect = text_surface.get_rect(center=(x + CELL_SIZE // 2, y + CELL_SIZE // 2))
                     screen.blit(text_surface, text_rect)
 
-
-# Main game loop
-running = True
-quit_timer = None
-generate_grid()  # Generate grid at the start of the game
-assign_positions()  # Assign positions of numbers on the grid
-
-while running:
-    if(numbers_remaining==0):
-        game_over=True
-    elapsed_time = pygame.time.get_ticks() - start_time  # Calculate elapsed time
-    
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.MOUSEBUTTONDOWN and not game_over and elapsed_time > 2000:
-            checkMouseCoords(getMouseRow(), getMouseCol())
-            pygame.display.flip()
-    if end_game and quit_timer is None:  # Start the 5-second timer once game is over
-        quit_timer = pygame.time.get_ticks()        
-
-    # Fill the screen with black
-    screen.fill(BLACK)
-
-    # Draw the grid (this handles the blank grid after 2 seconds)
-    if elapsed_time < 2000:  # 2 seconds
-        game_start = False
-        draw_grid(GRID)
-        #GRID.fill(0)  # clears grid
-    else:
-        draw_grid(clicked_grid)
-        game_start = True
+def main():
+    global level, numbers_remaining, game_over, game_start, end_game, quit_timer, start_time, screen
+    # Generate grid and assign positions before updating screen dimensions
+    generate_grid()  # Generate grid at the start of the game
+    assign_positions()  # Assign positions of numbers on the grid
+    update_screen_dimensions()  # Update the screen dimensions based on the grid size
 
 
-    # If the game is over, display the result message
-    if game_over:
-        if numbers_remaining == 0:
-            # Increment level and reset game state for the next level
-            level += 1
-            numbers_remaining = level + 3  
-            generate_grid()  # Regenerate grid with updated size
-            assign_positions()  # Assign numbers in new grid
-            update_screen_dimensions()  # Update screen size based on new grid size
-            
-            # Update the display mode based on new screen size
-            screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-            
-            game_over = False  
-            start_time = pygame.time.get_ticks()  # Reset the timer for next level
+    # Initial screen setup
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_caption("Grid Example")
 
-        
-    
-    if(end_game):
-        display_message("You Lose", SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2, RED)
-        if pygame.time.get_ticks() - quit_timer > 5000:
-            running = False
-    # Update the display
-    pygame.display.flip()
+    # Main game loop
+    running = True
+    generate_grid()  # Generate grid at the start of the game
+    assign_positions()  # Assign positions of numbers on the grid
+    start_time = pygame.time.get_ticks()
+    while running:
+        if(numbers_remaining==0):
+            game_over=True
+        elapsed_time = pygame.time.get_ticks() - start_time  # Calculate elapsed time
 
-# Quit Pygame
-pygame.quit()
-sys.exit()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN and not game_over and elapsed_time > 2000:
+                checkMouseCoords(getMouseRow(), getMouseCol())
+                pygame.display.flip()
+        if end_game and quit_timer is None:  # Start the 5-second timer once game is over
+            quit_timer = pygame.time.get_ticks()        
+
+        # Fill the screen with black
+        screen.fill(BLACK)
+
+        # Draw the grid (this handles the blank grid after 2 seconds)
+        if elapsed_time < 2000:  # 2 seconds
+            game_start = False
+            draw_grid(GRID)
+            #GRID.fill(0)  # clears grid
+        else:
+            draw_grid(clicked_grid)
+            game_start = True
+
+
+        # If the game is over, display the result message
+        if game_over:
+            if numbers_remaining == 0:
+                time.sleep(1)
+                # Increment level and reset game state for the next level
+                level += 1
+                numbers_remaining = level + 3  
+                generate_grid()  # Regenerate grid with updated size
+                assign_positions()  # Assign numbers in new grid
+                update_screen_dimensions()  # Update screen size based on new grid size
+
+                # Update the display mode based on new screen size
+                screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+                game_over = False  
+                start_time = pygame.time.get_ticks()  # Reset the timer for next level
+
+
+
+        if(end_game):
+            display_message("You Lose", SCREEN_WIDTH // 2, (SCREEN_HEIGHT // 2) - 30, RED)
+            if pygame.time.get_ticks() - quit_timer > 5000:
+                running = False
+        # Update the display
+        pygame.display.flip()
+
+    # Quit Pygame
+    pygame.quit()
+    sys.exit()
+
+if __name__ == "__main__":
+    main()
